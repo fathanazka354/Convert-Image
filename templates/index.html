@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Converter Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            bg: '#0f0f17',
+            surface: '#17172a',
+            card: '#1e1e35',
+            border: '#2e2e52',
+            accent: '#7c6af7',
+            'accent-h': '#9d8fff',
+            primary: '#e94560',
+            'primary-h': '#ff6b81',
+            success: '#4ecca3',
+          },
+          animation: {
+            'fade-up': 'fadeUp 0.5s ease-out',
+            'bounce-delayed': 'bounce 0.8s ease infinite',
+          },
+          keyframes: {
+            fadeUp: {
+              '0%': { opacity: '0', transform: 'translateY(24px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            bounce: {
+              '0%, 80%, 100%': { transform: 'scale(0.6)', opacity: '0.5' },
+              '40%': { transform: 'scale(1.1)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Slider Styles */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 2px solid theme('colors.accent');
+      transition: transform 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { 
+        transform: scale(1.2); 
+    }
+    
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 20% 20%, rgba(124, 106, 247, 0.1) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(233, 69, 96, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body class="bg-bg text-gray-200 min-h-screen flex items-center justify-center p-6 relative">
+
+  <div class="w-full max-w-lg bg-surface border border-border rounded-3xl shadow-[0_32px_80px_rgba(0,0,0,0.5)] overflow-hidden animate-fade-up relative z-10">
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-br from-[#1a1a35] to-[#0f0f22] border-b border-border p-8 pb-7 relative overflow-hidden">
+      <!-- Decorative Circle -->
+      <div class="absolute -top-10 -right-10 w-44 h-44 rounded-full bg-gradient-to-r from-accent/20 to-transparent blur-xl"></div>
+      
+      <h1 class="text-2xl font-bold tracking-tight flex items-center gap-3">
+        <span class="text-3xl drop-shadow-[0_0_12px_rgba(124,106,247,0.6)]">🖼️</span> 
+        Image Converter Pro
+      </h1>
+      <p class="text-gray-400 text-sm mt-2">Convert PNG, JPG, WEBP, BMP — fast &amp; free</p>
+    </div>
+
+    <!-- Body -->
+    <div class="p-8">
+
+      <!-- Drop Zone -->
+      <div id="dropzone" class="border-2 border-dashed border-border rounded-2xl p-8 text-center cursor-pointer transition-all duration-250 bg-card hover:border-accent hover:bg-accent/5 relative group">
+        <input type="file" id="fileInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+        <span class="text-4xl block mb-3 group-hover:scale-110 transition-transform">📂</span>
+        <div class="text-sm font-semibold text-gray-200">Click or drag &amp; drop an image</div>
+        <div class="text-xs text-gray-400 mt-1">PNG · JPG · WEBP · BMP</div>
+        <div id="fileName" class="mt-3 text-sm font-medium text-success truncate max-w-full hidden"></div>
+      </div>
+
+      <!-- Format Section -->
+      <div class="text-[10px] font-bold tracking-wider uppercase text-gray-400 mt-6 mb-3">Output Format</div>
+      <div class="flex flex-wrap gap-2" id="formatGroup">
+        <label class="cursor-pointer">
+          <input type="radio" name="fmt" value="JPEG" class="peer sr-only" checked />
+          <div class="px-5 py-2 rounded-full border border-border text-sm font-semibold text-gray-400 transition-all peer-checked:bg-accent peer-checked:border-accent peer-checked:text-white peer-checked:shadow-[0_4px_16px_rgba(124,106,247,0.25)] hover:border-accent-h hover:text-gray-200">JPEG</div>
+        </label>
+
+        <label class="cursor-pointer">
+          <input type="radio" name="fmt" value="WEBP" class="peer sr-only" />
+          <div class="px-5 py-2 rounded-full border border-border text-sm font-semibold text-gray-400 transition-all peer-checked:bg-accent peer-checked:border-accent peer-checked:text-white peer-checked:shadow-[0_4px_16px_rgba(124,106,247,0.25)] hover:border-accent-h hover:text-gray-200">WEBP</div>
+        </label>
+
+        <label class="cursor-pointer">
+          <input type="radio" name="fmt" value="PNG" class="peer sr-only" />
+          <div class="px-5 py-2 rounded-full border border-border text-sm font-semibold text-gray-400 transition-all peer-checked:bg-accent peer-checked:border-accent peer-checked:text-white peer-checked:shadow-[0_4px_16px_rgba(124,106,247,0.25)] hover:border-accent-h hover:text-gray-200">PNG</div>
+        </label>
+
+        <label class="cursor-pointer">
+          <input type="radio" name="fmt" value="BMP" class="peer sr-only" />
+          <div class="px-5 py-2 rounded-full border border-border text-sm font-semibold text-gray-400 transition-all peer-checked:bg-accent peer-checked:border-accent peer-checked:text-white peer-checked:shadow-[0_4px_16px_rgba(124,106,247,0.25)] hover:border-accent-h hover:text-gray-200">BMP</div>
+        </label>
+      </div>
+
+      <!-- Quality Section -->
+      <div class="text-[10px] font-bold tracking-wider uppercase text-gray-400 mt-6 mb-2">
+        Quality <span id="qualityNote" class="text-gray-500 font-normal normal-case ml-1">(JPEG / WEBP)</span>
+      </div>
+      <div class="flex items-center gap-4 transition-opacity duration-300" id="qualityWrapper">
+        <input type="range" id="qualitySlider" min="10" max="100" value="90" 
+               class="flex-1 appearance-none h-1.5 rounded-full outline-none cursor-pointer"
+               style="background: linear-gradient(to right, theme('colors.accent') 90%, theme('colors.border') 90%);" />
+        <div id="qualityVal" class="text-xl font-bold text-accent min-w-[36px] text-right">90</div>
+      </div>
+      <div class="text-xs text-gray-500 mt-2">Higher quality = larger file size</div>
+
+      <!-- Action Button -->
+      <button id="convertBtn" disabled 
+              class="w-full mt-8 p-4 bg-gradient-to-br from-primary to-[#c73652] rounded-xl text-white text-[15px] font-bold tracking-wide shadow-[0_6px_24px_rgba(233,69,96,0.25)] transition-all hover:-translate-y-0.5 hover:shadow-[0_10px_32px_rgba(233,69,96,0.4)] active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+        Convert &amp; Download
+      </button>
+
+      <!-- Loader -->
+      <div id="loader" class="hidden justify-center items-center gap-1.5 mt-4">
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce-delayed"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce-delayed" style="animation-delay: 0.15s"></div>
+        <div class="w-2 h-2 rounded-full bg-accent animate-bounce-delayed" style="animation-delay: 0.3s"></div>
+      </div>
+
+      <!-- Status Message -->
+      <div id="status" class="hidden mt-4 p-3 rounded-lg text-sm text-center font-medium"></div>
+
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
