@@ -33,11 +33,43 @@ document.addEventListener('DOMContentLoaded', () => {
     handleFile(e.dataTransfer.files[0]);
   });
 
-  function handleFile(file) {
-    if (!file || !file.type.startsWith('image/')) {
+  async function handleFile(file) {
+    if (!file) return;
+
+    // Handle HEIC/HEIF images using heic2any
+    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || file.name.toLowerCase().endsWith('.heic');
+    
+    if (isHeic) {
+        showStatus('⏳ Reading HEIC format... (might take a moment)', 'success');
+        loader.classList.replace('hidden', 'flex');
+        convertBtn.disabled = true;
+        
+        try {
+            // Convert HEIC to JPEG Blob using the heic2any library we added in HTML
+            const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+            
+            // Create a new File object from the blob
+            const newName = file.name.replace(/\.heic$/i, '.jpg');
+            selectedFile = new File([convertedBlob], newName, { type: 'image/jpeg' });
+            
+            fileName.textContent = '✅ ' + newName + ' (Ready)';
+            fileName.classList.remove('hidden');
+            convertBtn.disabled = false;
+            showStatus('');
+        } catch (err) {
+            showStatus('❌ Failed to read HEIC: ' + err.message, 'error');
+            fileName.classList.add('hidden');
+        } finally {
+            loader.classList.replace('flex', 'hidden');
+        }
+        return;
+    }
+
+    if (!file.type.startsWith('image/')) {
         showStatus('❌ Please select a valid image file', 'error');
         return;
     }
+    
     selectedFile = file;
     fileName.textContent = '✅ ' + file.name;
     fileName.classList.remove('hidden');
